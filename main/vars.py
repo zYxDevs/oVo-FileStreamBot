@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+
+
 class Var(object):
     MULTI_CLIENT = False
     API_ID = int(environ.get("API_ID"))
@@ -20,9 +22,9 @@ class Var(object):
     BIND_ADDRESS = str(environ.get("WEB_SERVER_BIND_ADDRESS", "0.0.0.0"))
     PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
     HAS_SSL = environ.get("HAS_SSL", False)
-    HAS_SSL = True if str(HAS_SSL).lower() == "true" else False
+    HAS_SSL = str(HAS_SSL).lower() == "true"
     NO_PORT = environ.get("NO_PORT", False)
-    NO_PORT = True if str(NO_PORT).lower() == "true" else False
+    NO_PORT = str(NO_PORT).lower() == "true"
     if "DYNO" in environ:
         ON_HEROKU = True
         APP_NAME = str(environ.get("APP_NAME"))
@@ -31,17 +33,29 @@ class Var(object):
     FQDN = (
         str(environ.get("FQDN", BIND_ADDRESS))
         if not ON_HEROKU or environ.get("FQDN")
-        else APP_NAME + ".herokuapp.com"
+        else f"{APP_NAME}.herokuapp.com"
     )
     if ON_HEROKU:
         URL = f"https://{FQDN}/"
     else:
-        URL = "http{}://{}{}/".format(
-            "s" if HAS_SSL else "", FQDN, "" if NO_PORT else ":" + str(PORT)
-        )
+        URL = f'http{"s" if HAS_SSL else ""}://{FQDN}{"" if NO_PORT else f":{PORT}"}/'
 
     UPDATES_CHANNEL = "HxBots"
     OWNER_ID = int(environ.get('OWNER_ID', '754495556'))
 
-    BANNED_CHANNELS = list(set(int(x) for x in str(environ.get("BANNED_CHANNELS", "-1001296894100")).split()))
-    BANNED_USERS = list(set(int(x) for x in str(environ.get("BANNED_USERS","5275470552 5287015877")).split()))
+    BANNED_CHANNELS = list(
+        {
+            int(x)
+            for x in str(
+                environ.get("BANNED_CHANNELS", "-1001296894100")
+            ).split()
+        }
+    )
+    BANNED_USERS = list(
+        {
+            int(x)
+            for x in str(
+                environ.get("BANNED_USERS", "5275470552 5287015877")
+            ).split()
+        }
+    )
